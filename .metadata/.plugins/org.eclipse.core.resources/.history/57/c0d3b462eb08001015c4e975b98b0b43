@@ -1,0 +1,92 @@
+package com.example.demo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class LibroRepository {
+	 // Simulamos una base de datos con un Map
+    private final Map<String, Libro> baseDeDatos = new HashMap<>();
+    
+    // Simulamos almacén de tokens de autorización
+    private final Map<String, String> authTokens = new HashMap<>();
+ // Guardar un Libro
+    public Libro save(Libro Libro) {
+        baseDeDatos.put(Libro.getId(), Libro);
+        // Inicializamos estructuras relacionadas
+        authTokens.put("token-" + Libro.getId(), Libro.getId());
+        permisos.put(Libro.getId(), new ArrayList<>());
+        accesos.put(Libro.getId(), new ArrayList<>());
+        preferencias.put(Libro.getId(), new HashMap<>());
+        statusHistorial.put(Libro.getId(), new ArrayList<>());
+        documentos.put(Libro.getId(), new ArrayList<>());
+        return Libro;
+    }
+    
+    // Encontrar usuario por ID
+    public Libro findById(String id) {
+        return baseDeDatos.get(id);
+    }
+    
+    // Listar todos los usuarios
+    public List<Libro> findAll() {
+        return new ArrayList<>(baseDeDatos.values());
+    }
+    
+    // Eliminar un usuario
+    public void deleteById(String id) {
+        baseDeDatos.remove(id);
+        authTokens.remove("token-" + id);
+        permisos.remove(id);
+        accesos.remove(id);
+        preferencias.remove(id);
+        statusHistorial.remove(id);
+        documentos.remove(id);
+    }
+    
+    // Actualizar un usuario
+    public Libro update(Libro usuario) {
+        if (baseDeDatos.containsKey(usuario.getId())) {
+            baseDeDatos.put(usuario.getId(), usuario);
+            return usuario;
+        }
+        return null;
+    }
+    
+    // Buscar usuarios por filtros
+    public List<Libro> buscarPorFiltros(String nombre, String email, int edad) {
+        return baseDeDatos.values().stream()
+                .filter(u -> nombre == null || u.getNombre().contains(nombre))
+                .filter(u -> email == null || u.getEmail().contains(email))
+                .filter(u -> edad == 0 || u.getEdad() == edad)
+                .collect(Collectors.toList());
+    }
+    
+    
+    // Encontrar usuario por token de autorización
+    public Libro findByAuthToken(String authToken) {
+        String userId = authTokens.get(authToken);
+        if (userId != null) {
+            return baseDeDatos.get(userId);
+        }
+        return null;
+    }
+    
+    // Establecer permisos para un usuario
+    public void setPermisos(String id, List<String> nuevosPermisos) {
+        permisos.put(id, nuevosPermisos);
+    }
+    
+    // Registrar un nuevo acceso
+    public void registrarAcceso(String id, Map<String, Object> nuevoAcceso) {
+        List<Map<String, Object>> accesosUsuario = accesos.getOrDefault(id, new ArrayList<>());
+        accesosUsuario.add(0, nuevoAcceso); // Añadir al principio (más reciente)
+        accesos.put(id, accesosUsuario);
+    }
+    
+}
