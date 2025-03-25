@@ -1,0 +1,61 @@
+package com.example.demo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class LibroService {
+	private final LibroRepository libroRepository;
+
+	@Autowired
+	public LibroService(LibroRepository libroRepository) {
+		this.libroRepository = libroRepository;
+
+		// Inicializamos algunos datos de ejemplo
+		initSampleData();
+	}
+
+	private void initSampleData() {
+		// Crear Libros
+		Libro cienAniosDeSoledad = new Libro("Cien Años De Soledad", "Gabriel Garcia Marquez", 1967);
+		Libro donQuijoteDeLaMancha = new Libro("Don Quijote de la Mancha", " Miguel de Cervantes ", 1605);
+		Libro elCodigoDaVinci = new Libro("El código Da Vinci", "Dan Brown ", 2003);
+
+		// Guardar Libros
+		save(cienAniosDeSoledad);
+		save(donQuijoteDeLaMancha);
+		save(elCodigoDaVinci);
+
+		// Agregar permisos a Juan
+		List<String> permisosJuan = new ArrayList<>();
+		permisosJuan.add("LEER");
+		permisosJuan.add("ESCRIBIR");
+		permisosJuan.add("INACTIVO_ADMIN");
+		usuarioRepository.setPermisos(juan.getId(), permisosJuan);
+
+		// Agregar permisos a María
+		List<String> permisosMaria = new ArrayList<>();
+		permisosMaria.add("LEER");
+		permisosMaria.add("ADMIN");
+		usuarioRepository.setPermisos(maria.getId(), permisosMaria);
+
+		// Agregar accesos a Juan
+		Map<String, Object> acceso1 = new HashMap<>();
+		acceso1.put("fecha", "2023-01-01");
+		acceso1.put("ip", "192.168.1.1");
+		acceso1.put("navegador", "Chrome");
+		usuarioRepository.registrarAcceso(juan.getId(), acceso1);
+
+		Map<String, Object> acceso2 = new HashMap<>();
+		acceso2.put("fecha", "2023-01-02");
+		acceso2.put("ip", "192.168.1.2");
+		acceso2.put("navegador", "Firefox");
+		usuarioRepository.registrarAcceso(juan.getId(), acceso2);
+
+	}
+}

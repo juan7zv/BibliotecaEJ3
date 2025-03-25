@@ -55,7 +55,6 @@ INDEX VERSION 1.134+C:\BibliotecaEJ3\.metadata\.plugins\org.eclipse.jdt.core
 334736846.index
 1945443049.index
 2029954495.index
-824713519.index
 3401397015.index
 313237054.index
 1180269001.index
