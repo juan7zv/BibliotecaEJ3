@@ -1,0 +1,70 @@
+package com.example.demo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class LibroRepository {
+	 // Simulamos una base de datos con un Map
+    private final Map<String, Libro> baseDeDatos = new HashMap<>();
+    
+    // Simulamos almacén de tokens de autorización
+    private final Map<String, String> authTokens = new HashMap<>();
+ // Guardar un Libro
+    public Libro save(Libro Libro) {
+        baseDeDatos.put(Libro.getId(), Libro);
+        authTokens.put("token-" + Libro.getId(), Libro.getId());
+        return Libro;
+    }
+    
+    // Encontrar libro por ID
+    public Libro findById(String id) {
+        return baseDeDatos.get(id);
+    }
+    
+    // Listar todos los libros
+    public List<Libro> findAll() {
+        return new ArrayList<>(baseDeDatos.values());
+    }
+    
+    // Eliminar un libro
+    public void deleteById(String id) {
+        baseDeDatos.remove(id);
+        authTokens.remove("token-" + id);
+    }
+    
+    // Actualizar un libro
+    public Libro update(Libro libro) {
+        if (baseDeDatos.containsKey(libro.getId())) {
+            baseDeDatos.put(libro.getId(), libro);
+            return libro;
+        }
+        return null;
+    }
+    
+    // Buscar libros por filtros
+    public List<Libro> buscarPorFiltros(String titulo, String autor, int anio) {
+        return baseDeDatos.values().stream()
+                .filter(u -> titulo == null || u.getTitulo().contains(titulo))
+                .filter(u -> autor == null || u.getAutor().contains(autor))
+                .filter(u -> anio == 0 || u.getAnio() == anio)
+                .collect(Collectors.toList());
+    }
+    
+    
+    // Encontrar libro por token de autorización
+    public Libro findByAuthToken(String authToken) {
+        String libroId = authTokens.get(authToken);
+        if (libroId != null) {
+            return baseDeDatos.get(libroId);
+        }
+        return null;
+    }
+  
+    
+}

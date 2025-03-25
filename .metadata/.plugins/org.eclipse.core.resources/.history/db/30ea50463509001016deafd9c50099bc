@@ -1,0 +1,94 @@
+package com.example.demo;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/libros")
+public class LibroController {
+
+	private final LibroService libroService;
+	private final UsuarioService usuarioService;
+
+	@Autowired
+	public LibroController(LibroService libroService, UsuarioService usuarioService) {
+		this.libroService = libroService;
+		this.usuarioService = usuarioService;
+	}
+
+	// Obtener todos los libros, mapiando la ruta
+	@GetMapping
+	public ResponseEntity<List<Libro>> getAllLibros() {
+		List<Libro> libros = libroService.findAll();
+		return new ResponseEntity<>(libros, HttpStatus.OK);
+	}
+
+	// Obtener un libro por ID
+	@GetMapping("/{id}")
+	public ResponseEntity<Libro> getLibroById(@PathVariable String id) {
+		Libro libro = libroService.findById(id);
+		if (libro != null) {
+			return new ResponseEntity<>(libro, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	// Crear un nuevo libro
+	@PostMapping
+	public ResponseEntity<Libro> createLibro(@RequestBody Libro libro, @RequestHeader("X-User-Role") String rol) {
+	    if (rol.equals("admin")) {
+	        Libro libroEncontrado = libroService.findById(libro.getId());
+	        if (libroEncontrado == null) {
+	            return new ResponseEntity<>(HttpStatus.CONFLICT);
+	        }
+	        return new ResponseEntity<>(libroEncontrado, HttpStatus.OK);
+	    }
+	    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+	}
+
+	// Actualizar un libro existente
+	@PutMapping("/{id}")
+	public ResponseEntity<Libro> updateLibro(@PathVariable String id, @RequestBody Libro libro) {
+		Libro existingLibro = libroService.findById(id);
+		if (existingLibro != null) {
+			libro.setId(id);
+			Libro updatedLibro = libroService.save(libro);
+			return new ResponseEntity<>(updatedLibro, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	// Ruta con parámetros de consulta (query string)
+	@GetMapping("/buscar")
+	public ResponseEntity<List<Libro>> buscarLibros(@RequestParam String titulo, @RequestParam String autor,
+			@RequestHeader int anio) {
+		List<Libro> libros = libroService.buscarPorFiltros(titulo, autor, anio);
+		return new ResponseEntity<>(libros, HttpStatus.OK);
+	}
+
+	// Ruta que lee cabeceras HTTP
+	@GetMapping("/auth")
+	public ResponseEntity<Libro> getAuth(@RequestHeader("Authorization") String token) {
+		Usuario usuario = usuarioService.findByAuthToken(token);
+		if (usuario == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		return new ResponseEntity<>(HttpStatus.OK);
+
+	}
+}
